@@ -8,7 +8,7 @@ const fetchData = async (searchTerm) => {
 )
     console.log(res.data);
 }
-const debounce = (func, delay) => {
+const debounce = (func, delay = 1000) => {
     let timeoutId;
     return (...args) => {
         if(timeoutId){

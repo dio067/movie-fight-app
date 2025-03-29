@@ -24,7 +24,7 @@ figure .image img {
 }
 
 .title .icon {
-  margin-left: 15px;
+  margin-left: 15px;/* fix position*/
 }
 
 .hero {

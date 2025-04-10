@@ -14,12 +14,12 @@ const fetchData = async (searchTerm) => {
 
 const root = document.querySelector('.autocomplete')
 root.innerHTML = `<label><b>Search For a Movie</b></label>
-<input class="input"/>
-<div class="dropdown">
-<div class="dropdown-menu>
-  <div class="dropdown-content" id="results"></div>
+  <input class="input" />
+  <div class="dropdown">
+    <div class="dropdown-menu">
+      <div class="dropdown-content" id="results"></div>
     </div>
-</div>
+  </div>
 `;
 
 const input = document.querySelector('input');
@@ -29,8 +29,9 @@ const resultsWrapper = document.querySelector('#results');
 const onInput = async e => {
  const movies = await fetchData(e.target.value)
 
- if(movies.length){
-    dropdown.classList.remove('is-active')
+ if(!movies.length){
+    dropdown.classList.remove('is-active');
+    return;
  }
 
  console.log(movies);
@@ -45,6 +46,12 @@ const onInput = async e => {
     option.innerHTML = `<img src="${imgSrc}"/>
        ${movie.Title}
     `;
+
+    option.addEventListener('click', e => {
+        dropdown.classList.remove('is-active');
+        input.value = movie.Title;
+    })
+
     console.log(option);
     resultsWrapper.appendChild(option);
 

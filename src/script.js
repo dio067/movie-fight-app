@@ -1,6 +1,4 @@
-createAutoComplete({
-    root: document.querySelector('.autocomplete'),
-
+const autoCompleteConfig = {
     fetchData : async (searchTerm) => {
     const res = await axios.get('http://www.omdbapi.com/', {
         params:{
@@ -30,6 +28,16 @@ createAutoComplete({
     inputValue : (movie) => {
         return movie.Title;
     }
+    
+}
+createAutoComplete({
+    root: document.querySelector('#left-autocomplete'),
+    ...autoCompleteConfig
+});
+
+createAutoComplete({
+    root: document.querySelector('#right-autocomplete'),
+    ...autoCompleteConfig
 });
 
 const movieSelected = async (movie) => {

@@ -1,4 +1,7 @@
-const fetchData = async (searchTerm) => {
+createAutoComplete({
+    root: document.querySelector('.autocomplete'),
+
+    fetchData : async (searchTerm) => {
     const res = await axios.get('http://www.omdbapi.com/', {
         params:{
             apikey:'fdb5cf6d',
@@ -10,10 +13,7 @@ const fetchData = async (searchTerm) => {
     }
 
     return res.data.Search;
-};
-
-createAutoComplete({
-    root: document.querySelector('.autocomplete'),
+    },
 
     renderOption : (movie) => {
     const imgSrc = movie.Poster === 'N/A' ? "" : movie.Poster;

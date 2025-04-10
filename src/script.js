@@ -21,12 +21,6 @@ const autoCompleteConfig = {
     `;
     },
 
-    onSelectOption : (movie) => {
-        movieSelected(movie);
-        document.querySelector('.tutorial').classList.add('is-hidden');
-
-    },
-
     inputValue : (movie) => {
         return movie.Title;
     }
@@ -34,57 +28,115 @@ const autoCompleteConfig = {
 }
 createAutoComplete({
     root: document.querySelector('#left-autocomplete'),
+    onSelectOption : (movie) => {
+      movieSelected (movie,document.querySelector('#left-summary'),'left');
+      document.querySelector('.tutorial').classList.add('is-hidden');
+    },
     ...autoCompleteConfig
 });
 
 createAutoComplete({
     root: document.querySelector('#right-autocomplete'),
+    onSelectOption : (movie) => {
+      movieSelected(movie,document.querySelector('#right-summary'),'right');
+      document.querySelector('.tutorial').classList.add('is-hidden');
+    },
     ...autoCompleteConfig
 });
 
-const movieSelected = async (movie) => {
+let leftMovie;
+let rightMovie;
+
+const movieSelected = async (movie, summaryElement,side) => {
   const res =  await axios.get('http://www.omdbapi.com/', {
         params:{
             apikey:'fdb5cf6d',
             i: movie.imdbID
         }
     });
-    document.querySelector('.summary').innerHTML = movieTemplate(res.data);
-}
-
-const movieTemplate = (movieDetails) => {
-    return `
-    <article class="media">
-      <figure class="media-left">
-        <p class="image">
-          <img src="${movieDetails.Poster}">
-        </p>
-      </figure>
-      <div>
-         <h1>${movieDetails.Title}</h1>
-         <h4>${movieDetails.Genre}</h4>
-         <p>${movieDetails.Plot}</p>
-      </div>
-    </article>
-      <article>
-        <p class="title">${movieDetails.Awards}</p>
-        <p class="subtitle">Awards</p>
-      </article>
-      <article>
-        <p class="title">${movieDetails.BoxOffice}</p>
-        <p class="subtitle">Box Office</p>
-      </article>
-      <article>
-        <p class="title">${movieDetails.Metascore}</p>
-        <p class="subtitle">Meta Score</p>
-      </article>
-      <article>
-        <p class="title">${movieDetails.imdbRating}</p>
-        <p class="subtitle">IMDB Rating</p>
-      </article>
-      <article>
-        <p class="title">${movieDetails.imdbVotes}</p>
-        <p class="subtitle">IMDB votes</p>
-      </article>`
+    summaryElement.innerHTML = movieTemplate(res.data);
+    if (side === 'left') {
+        leftMovie = res.data;
+      } else {
+        rightMovie = res.data;
+      }
     
-};
+      if (leftMovie && rightMovie) {
+        runComparison();
+      }
+    };
+    
+    const runComparison = () => {
+      const leftSideStats = document.querySelectorAll('#left-summary .notification');
+      const rightSideStats = document.querySelectorAll('#right-summary .notification');
+
+      leftSideStats.forEach((leftStat,index) => {
+        const rightStat = rightSideStats[index];
+        
+        const leftValue  = parseInt(leftStat.dataset.value);
+        const rightValue = parseInt(rightStat.dataset.value);
+
+        if(leftValue < rightValue) {
+            leftStat.classList.remove('is-primary');
+            leftStat.classList.add('is-warning');
+        } else {
+            rightStat.classList.remove('is-primary');
+            rightStat.classList.add('is-warning');
+        }
+      })
+       
+    };
+
+    const movieTemplate = movieDetail => {
+        const dollars = movieDetail.BoxOffice.replace(/\$/g,'').replace(/,/g,'')
+        const metascore = parseInt(movieDetail.Metascore)
+        const imdbRating = parseFloat(movieDetail.imdbRating);
+        const imdbVotes = parseInt(movieDetail.imdbVotes.replace(/,/g,''));
+        let count  = 0;
+        const awards = movieDetail.Awards.split(' ').forEach((word) =>{
+            const value = parseInt(word);
+            if(!isNaN(value)){
+                count = count + value;
+            }
+        
+        });
+        console.log(count);
+
+        return `
+          <article class="media">
+            <figure class="media-left">
+              <p class="image">
+                <img src="${movieDetail.Poster}" />
+              </p>
+            </figure>
+            <div class="media-content">
+              <div class="content">
+                <h1>${movieDetail.Title}</h1>
+                <h4>${movieDetail.Genre}</h4>
+                <p>${movieDetail.Plot}</p>
+              </div>
+            </div>
+          </article>
+          <article data-value=${awards} class="notification is-primary">
+            <p class="title">${movieDetail.Awards}</p>
+            <p class="subtitle">Awards</p>
+          </article>
+          <article data-value=${dollars} class="notification is-primary">
+            <p class="title">${movieDetail.BoxOffice}</p>
+            <p class="subtitle">Box Office</p>
+          </article>
+          <article data-value=${metascore} class="notification is-primary">
+            <p class="title">${movieDetail.Metascore}</p>
+            <p class="subtitle">Metascore</p>
+          </article>
+          <article data-value=${imdbRating} class="notification is-primary">
+            <p class="title">${movieDetail.imdbRating}</p>
+            <p class="subtitle">IMDB Rating</p>
+          </article>
+          <article data-value=${imdbVotes} class="notification is-primary">
+            <p class="title">${movieDetail.imdbVotes}</p>
+            <p class="subtitle">IMDB Votes</p>
+          </article>
+        `;
+      };
+      

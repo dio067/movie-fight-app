@@ -31,8 +31,9 @@ const onInput = async e => {
 
  for(let item of items){
     const option = document.createElement('a');
-    option.innerHTML = `${renderOption(item)}
-    `;
+    option.classList.add('dropdown-item');
+    option.innerHTML = renderOption(item)
+    
 
     option.addEventListener('click', e => {
         dropdown.classList.remove('is-active');
@@ -40,7 +41,6 @@ const onInput = async e => {
         onSelectOption(item);
     })
 
-    console.log(option);
     resultsWrapper.appendChild(option);
 
  }

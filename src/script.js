@@ -23,6 +23,8 @@ const autoCompleteConfig = {
 
     onSelectOption : (movie) => {
         movieSelected(movie);
+        document.querySelector('.tutorial').classList.add('is-hidden');
+
     },
 
     inputValue : (movie) => {
